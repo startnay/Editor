@@ -91,7 +91,7 @@ public class MainIde extends JFrame
 
     private JMenu jMenuFile;
     private JMenu jMenuEdit;
-    private JMenu jMenuRun;
+  //  private JMenu jMenuRun;
     private JMenu jMenuSource;
 
     private JTextPane jTextArea_Code;
@@ -123,14 +123,14 @@ public class MainIde extends JFrame
         jMenuFile = new JMenu("File");
         jMenuEdit = new JMenu("Edit");
         jMenuSource = new JMenu("Source");
-        jMenuRun = new JMenu("Run");
+       // jMenuRun = new JMenu("Run");
         jAboutMenu = new JMenu("About");
         mnuPopupMenu = new JPopupMenu();
 
         JMenuItem item;
 
-        jMenuRun.add(item = new JMenuItem("Run Project"));
-        item.addActionListener(this);
+        //jMenuRun.add(item = new JMenuItem("Run Project"));
+        //item.addActionListener(this);
 
         jMenuFile.add(item = new JMenuItem("New Project"));
         item.setIcon(new ImageIcon("icons/new.png"));
@@ -145,11 +145,12 @@ public class MainIde extends JFrame
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
         //	item.setActionCommand("Save");
 
-        jMenuFile.add(item = new JMenuItem("Print"));
-        item.addActionListener(this);
+//        jMenuFile.add(item = new JMenuItem("Print"));
+  //      item.addActionListener(this);
         jMenuFile.add(item = new JMenuItem("Exit"));
         item.setIcon(new ImageIcon("icons/close.png"));
         item.addActionListener(this);
+        
 
         jMenuEdit.add(undoAction);
         jMenuEdit.add(redoAction);
@@ -252,7 +253,7 @@ public class MainIde extends JFrame
 
         jMenu.add(jMenuFile);
         jMenu.add(jMenuEdit);
-        jMenu.add(jMenuRun);
+    //    jMenu.add(jMenuRun);
         jMenu.add(jMenuSource);
         jMenu.add(jAboutMenu);
         this.setJMenuBar(jMenu);

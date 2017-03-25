@@ -5,7 +5,6 @@
  */
 package Editor;
 
-import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -17,7 +16,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.BufferedReader;
@@ -36,7 +34,6 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -46,12 +43,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
-import javax.swing.colorchooser.DefaultColorSelectionModel;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
@@ -63,7 +58,6 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -72,9 +66,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import java.awt.Robot;
 import java.awt.event.KeyListener;
-import javafx.scene.input.KeyCode;
 
 /**
  *
@@ -91,7 +83,7 @@ public class MainIde extends JFrame
 
     private JMenu jMenuFile;
     private JMenu jMenuEdit;
-  //  private JMenu jMenuRun;
+    private JMenu jMenuRun;
     private JMenu jMenuSource;
 
     private JTextPane jTextArea_Code;
@@ -123,14 +115,14 @@ public class MainIde extends JFrame
         jMenuFile = new JMenu("File");
         jMenuEdit = new JMenu("Edit");
         jMenuSource = new JMenu("Source");
-       // jMenuRun = new JMenu("Run");
+        jMenuRun = new JMenu("Run");
         jAboutMenu = new JMenu("About");
         mnuPopupMenu = new JPopupMenu();
 
         JMenuItem item;
 
-        //jMenuRun.add(item = new JMenuItem("Run Project"));
-        //item.addActionListener(this);
+        jMenuRun.add(item = new JMenuItem("Run Project"));
+        item.addActionListener(this);
 
         jMenuFile.add(item = new JMenuItem("New Project"));
         item.setIcon(new ImageIcon("icons/new.png"));
@@ -253,14 +245,13 @@ public class MainIde extends JFrame
 
         jMenu.add(jMenuFile);
         jMenu.add(jMenuEdit);
-    //    jMenu.add(jMenuRun);
+       jMenu.add(jMenuRun);
         jMenu.add(jMenuSource);
         jMenu.add(jAboutMenu);
         this.setJMenuBar(jMenu);
         try {
             treeProject = new TreeProject(TreeProject.getConfigContent());
         } catch (IOException e) {
-            e.printStackTrace();
         }
 
         root = treeProject.getProjectRoot();
@@ -273,6 +264,7 @@ public class MainIde extends JFrame
         final AttributeSet attrType = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.blue);
         final AttributeSet attrBlack = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
         DefaultStyledDocument doc = new DefaultStyledDocument() {
+            @Override
             public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
                 super.insertString(offset, str, a);
 
@@ -298,7 +290,11 @@ public class MainIde extends JFrame
                     wordR++;
                 }
             }
-
+/***********************
+ * high ligh keyword backspace
+ * 
+ */
+            @Override
             public void remove(int offs, int len) throws BadLocationException {
                 super.remove(offs, len);
 
@@ -309,7 +305,7 @@ public class MainIde extends JFrame
                 }
                 int after = findFirstNonWordChar(text, offs);
 
-                if (text.substring(before, after).matches("(\\W)*(private|public|protected)")) {
+                if (text.substring(before, after).matches("(\\W)*(" + key + ")")) {
                     setCharacterAttributes(before, after - before, attr, false);
                 } else {
                     setCharacterAttributes(before, after - before, attrBlack, false);
@@ -401,8 +397,7 @@ public class MainIde extends JFrame
                     } while (nextLine != null);
 
                 } catch (EOFException eof) {
-                } catch (Throwable t) {
-                    t.printStackTrace();
+                } catch (IOException t) {
                 }
             }
             pg.dispose();
@@ -448,9 +443,15 @@ public class MainIde extends JFrame
      * ************************
      * Initialize Component Of Main Form
      */
+    
     private void init() throws IOException {
+        
+        //start use to generate directory tree
+        
         File tmp = new File(TreeProject.getConfigContent());
         root = new TreeProject(tmp.getPath()).getProjectRoot();
+        
+        //end use to geneate direcotry tree
         initComponents();
 
     }
@@ -463,12 +464,12 @@ public class MainIde extends JFrame
         try {
             init();
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     /**
-     * @param args the command line arguments
+     * @param args the command line a
+     * rguments
      * @throws IOException
      */
     public static void main(String args[]) throws IOException {
@@ -501,16 +502,19 @@ public class MainIde extends JFrame
      */
     class MousePopupListener extends MouseAdapter {
 
+        @Override
         public void mousePressed(MouseEvent e) {
 
             checkPopup(e);
 
         }
 
+        @Override
         public void mouseClicked(MouseEvent e) {
             checkPopup(e);
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             checkPopup(e);
         }
@@ -534,16 +538,19 @@ public class MainIde extends JFrame
      */
     class TreeMousePopupListener extends MouseAdapter {
 
+        @Override
         public void mousePressed(MouseEvent e) {
 
             checkPopup(e);
 
         }
 
+        @Override
         public void mouseClicked(MouseEvent e) {
             checkPopup(e);
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             checkPopup(e);
         }
@@ -564,14 +571,17 @@ public class MainIde extends JFrame
     // An inner class to show when popup events occur
     class PopupPrintListener implements PopupMenuListener {
 
+        @Override
         public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             System.out.println("Popup menu will be visible!");
         }
 
+        @Override
         public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
             System.out.println("Popup menu will be invisible!");
         }
 
+        @Override
         public void popupMenuCanceled(PopupMenuEvent e) {
             System.out.println("Popup menu is hidden!");
         }
@@ -585,45 +595,51 @@ public class MainIde extends JFrame
             writer.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
-        if (arg0.getActionCommand() == "Open Project") {
+        if ("Open Project".equals(arg0.getActionCommand())) {
             OpenProject();
-        } else if (arg0.getActionCommand() == "New Project") {
+        } else if ("New Project".equals(arg0.getActionCommand())) {
             NewProject();
-        } else if (arg0.getActionCommand() == "Save") {
+        } else if ("Save".equals(arg0.getActionCommand())) {
             save(selectedFile);
-        } else if (arg0.getActionCommand() == "Run Project") {
-
-        } else if (arg0.getActionCommand() == "Exit") {
+        } else if ("Run Project".equals(arg0.getActionCommand())) {
+                    Runtime rt=Runtime.getRuntime();
+                    try {
+                        rt.exec(new String[]{"cmd.exe","/c","start " + TreeProject.getConfigContent()+"\\src\\cmdjava"});
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(this, ex.toString());
+                    }
+        } else if ("Exit".equals(arg0.getActionCommand())) {
             System.exit(0);
-        } else if (arg0.getActionCommand() == "Format") {
+        } else if ("Format".equals(arg0.getActionCommand())) {
 
-        } else if (arg0.getActionCommand() == "About Software") {
+        } else if ("About Software".equals(arg0.getActionCommand())) {
             new About().software();
-        } else if (arg0.getActionCommand() == "About Us") {
+        } else if ("About Us".equals(arg0.getActionCommand())) {
             new About().me();
-        } else if (arg0.getActionCommand() == "Find") {
+        } else if ("Find".equals(arg0.getActionCommand())) {
             Find find = new Find(jTextArea_Code);
 
-        } else if (arg0.getActionCommand() == "Copy") {
+        } else if ("Copy".equals(arg0.getActionCommand())) {
             System.out.println(text);
-        } else if (arg0.getActionCommand() == "Past") {
+        } else if ("Past".equals(arg0.getActionCommand())) {
             jTextArea_Code.paste();
             System.out.println(text);
-        } else if (arg0.getActionCommand() == "Cut") {
+        } else if ("Cut".equals(arg0.getActionCommand())) {
             jTextArea_Code.cut();
-        } else if (arg0.getActionCommand() == "Remove") {
+        } else if ("Remove".equals(arg0.getActionCommand())) {
             jTextArea_Code.replaceSelection("");
-        } else if (arg0.getActionCommand() == "Print") {
+        } else if ("Print".equals(arg0.getActionCommand())) {
             print(jTextArea_Code.getText());
-        } else if (arg0.getActionCommand() == "Font") {
+        } else if ("Font".equals(arg0.getActionCommand())) {
             fontS.setVisible(true);
             fontS.okButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent ae) {
                     Font selectedFont = fontS.returnFont();
                     jTextArea_Code.setFont(selectedFont);
@@ -632,11 +648,12 @@ public class MainIde extends JFrame
             });
 
             fontS.cancelButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent ae) {
                     fontS.setVisible(false);
                 }
             });
-        } else if (arg0.getActionCommand() == "New File") {
+        } else if ("New File".equals(arg0.getActionCommand())) {
             String args = jTreeProject.getLeadSelectionPath().toString();
             args = getThisNodePath(args);
             selectedFile = TreeProject.getFullPathProject(args);
@@ -647,12 +664,12 @@ public class MainIde extends JFrame
                     tmp.createNewFile();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
-                    e.printStackTrace();
+
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "This File Have Already!");
             }
-        } else if (arg0.getActionCommand() == "New Folder") {
+        } else if ("New Folder".equals(arg0.getActionCommand())) {
             String args = jTreeProject.getLeadSelectionPath().toString();
             args = getThisNodePath(args);
             selectedFile = TreeProject.getFullPathProject(args);
@@ -665,7 +682,7 @@ public class MainIde extends JFrame
                     JOptionPane.showMessageDialog(this, "Can not create this folder name here");
                 }
             }
-        } else if (arg0.getActionCommand() == "Delete") {
+        } else if ("Delete".equals(arg0.getActionCommand())) {
 
             /**
              * *
@@ -717,7 +734,6 @@ public class MainIde extends JFrame
                 root = new TreeProject(TreeProject.getConfigContent()).getProjectRoot();
 
             } catch (IOException e1) {
-                e1.printStackTrace();
             }
             
           //  if (!tmp.toString().equals(root.toString())) {
@@ -752,6 +768,7 @@ public class MainIde extends JFrame
     }
 
     //Method for Tree Selection 
+    @Override
     public void valueChanged(TreeSelectionEvent arg0) {
         // save(lastSelectedFile);
         String args = arg0.getNewLeadSelectionPath().toString();
@@ -770,9 +787,7 @@ public class MainIde extends JFrame
                 }
                 br.close();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
             }
             jTextArea_Code.setText(content);
             jTextArea_Code.setEditable(true);
@@ -784,6 +799,7 @@ public class MainIde extends JFrame
     // CLASS FOR UNDOLISTENER
     public class MyUndoableEditListener implements UndoableEditListener {
 
+        @Override
         public void undoableEditHappened(UndoableEditEvent e) {
             // Remember the edit and update the menus
             undo.addEdit(e.getEdit());
@@ -799,12 +815,12 @@ public class MainIde extends JFrame
             setEnabled(false);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 undo.undo();
             } catch (CannotUndoException ex) {
                 System.out.println("Unable to undo: " + ex);
-                ex.printStackTrace();
             }
             update();
             redoAction.update();
@@ -828,12 +844,12 @@ public class MainIde extends JFrame
             setEnabled(false);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 undo.redo();
             } catch (CannotRedoException ex) {
                 System.out.println("Unable to redo: " + ex);
-                ex.printStackTrace();
             }
             update();
             undoAction.update();

@@ -179,8 +179,12 @@ public class NewProject extends JFrame implements ActionListener {
         File tmp1=new File(tmp.getAbsolutePath()+"\\cmdjava.bat");
         tmp1.createNewFile();
         BufferedWriter writer =new BufferedWriter(new FileWriter(tmp1));
-        writer.write("javac *.java");
-        writer.write("\n javaw *");
+        writer.write("cd/");
+        writer.write("\nc:\n");
+        writer.write("\ncls\n");
+        writer.write("cd " + tmp1.getParent() + "\n javac *.java");
+        writer.write("\n java " +txtProjectName.getText());
+        
         writer.close();
         tmp=new File(tmp.getAbsolutePath()+"\\"+txtProjectName.getText()+".java");
         tmp.createNewFile();

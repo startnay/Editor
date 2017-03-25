@@ -1,6 +1,7 @@
 package Editor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * <h1>A class to store the programming language keywords and
@@ -34,6 +35,11 @@ public class SupportedKeywords {
     private String[] brackets = { "{", "(" };
     private String[] bCompletions = { "}", ")" };
     
+    
+    /***********************************
+     * 
+     * @return 
+     */
     public String getJavaKeyword(){
     	String key="";
     	boolean flag=true;
@@ -49,32 +55,5 @@ public class SupportedKeywords {
 		return key;
     	
     }
-    public String[] getJavaKeywords() {
-        return java;
-    }
-    public String[] getCppKeywords() {
-        return cpp;
-    }
-    public ArrayList<String> getbracketCompletions() {
-        ArrayList<String> al = new ArrayList<>();
-        for(String completion : bCompletions) {
-            al.add(completion);
-        }
-        return al;
-    }
-    public ArrayList<String> getbrackets() {
-        ArrayList<String> al = new ArrayList<>();
-        for(String completion : brackets) {
-            al.add(completion);
-        }
-        return al;
-    }
-    public ArrayList<String> setKeywords(String[] arr) {
-        ArrayList<String> al = new ArrayList<>();
-        for(String words : arr) {
-            al.add(words);
-        }
-        return al;
-    }
-
+    
 }
